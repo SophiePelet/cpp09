@@ -3,6 +3,7 @@
 /*
 	Constructor/destructor, copy constructor, copy assignment operator
 */
+
 BitcoinExchange::BitcoinExchange() {
 	std::string	buffer;
 
@@ -24,7 +25,7 @@ BitcoinExchange::BitcoinExchange() {
 		}
 		const std::string	before(buffer.begin(), it);
 		const std::string	after(it + 1, buffer.end());
-		this->_data[before] = std::strtof(after.c_str(), NULL);
+		this->_data[before] = std::strtod(after.c_str(), NULL);
 
 		index++;
 	}
@@ -106,10 +107,10 @@ bool	check_date(std::string date) {
 	return (true);
 }
 
-void	BitcoinExchange::check(const std::string &file) {
+void	BitcoinExchange::convert(const std::string &file) {
 	std::string	buffer;
 
-	std::ifstream	input(file);
+	std::ifstream	input(file.c_str());
 
 	if (!input.is_open())
 		throw CantOpenFileException();
@@ -120,19 +121,55 @@ void	BitcoinExchange::check(const std::string &file) {
 			index++;
 			continue ;
 		}
-		std::string::iterator	it = std::find(buffer.begin(), buffer.end(), '|');
-		if (it == buffer.end()) {
-			index++;
-			continue ;
-		}
-		const std::string	before(buffer.begin(), it);
-		const std::string	after(it + 1, buffer.end());
-		if (!check_date(after)) {
-			std::cout << ERR_DATE << after << std::endl;
-			continue ;
-		}
-		this->_data[before] = std::strtof(after.c_str(), NULL);
 
+		size_t	pos = buffer.find(" | ");
+		if (pos == std::string::npos) {
+			index++;
+			continue;
+		}
+		const std::string	before = buffer.substr(0, pos);
+		const std::string	after = buffer.substr(pos + 3);
+		if (!check_date(before)) {
+			std::cout << ERR_DATE << before << std::endl;
+			continue ;
+		}
+
+		char	*endptr;
+		float	value = std::strtod(after.c_str(), &endptr);
+		if (*endptr != '\0') {
+			std::cout << ERR_VALUE;
+			continue ;
+		}
+		if (value < 0) {
+			std::cout << ERR_SMALL;
+			continue ;
+		}
+		if (value > 1000) {
+			std::cout << ERR_LARGE;
+			continue ;
+		}
+
+		std::map<std::string, float>::iterator	it = this->_data.lower_bound(before);
+
+		// an iterator to a map acts like a pointer to a std::pair
+		// can access the first element element with `iterator->first`
+		// `iterator->second` for the second element
+		float	rate;
+		if (it == this->_data.begin() && it->first != before) {
+			std::cout << ERR_DATE << before << std::endl;
+			continue ;
+		}
+		else if (it == this->_data.end() || it->first > before) {
+			--it;
+			rate = it->second;
+		}
+		else if (it != this->_data.end() && it->first == before)
+			rate = it->second;
+
+		float	final_value = rate * value;
+
+		std::cout << before << " => " << value << " = " << final_value << std::endl;
+		
 		index++;
 	}
 

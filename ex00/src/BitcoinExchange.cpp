@@ -104,6 +104,7 @@ bool	check_date(std::string date) {
 				return (false);
 		}
 	}
+
 	return (true);
 }
 
@@ -123,17 +124,20 @@ void	BitcoinExchange::convert(const std::string &file) {
 		}
 
 		size_t	pos = buffer.find(" | ");
-		if (pos == std::string::npos) {
-			index++;
-			continue;
-		}
+
 		const std::string	before = buffer.substr(0, pos);
-		const std::string	after = buffer.substr(pos + 3);
 		if (!check_date(before)) {
 			std::cout << ERR_DATE << before << std::endl;
 			continue ;
 		}
 
+		const std::string	after = buffer.substr(pos + 3);
+		
+		if (pos == std::string::npos) {
+			index++;
+			continue;
+		}
+	
 		char	*endptr;
 		float	value = std::strtod(after.c_str(), &endptr);
 		if (*endptr != '\0') {
@@ -168,7 +172,7 @@ void	BitcoinExchange::convert(const std::string &file) {
 
 		float	final_value = rate * value;
 
-		std::cout << before << " => " << value << " = " << final_value << std::endl;
+		std::cout << it->first << " => " << value << " = " << final_value << std::endl;
 		
 		index++;
 	}

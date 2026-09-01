@@ -16,21 +16,21 @@
 
 class BitcoinExchange
 {
-public:
-	BitcoinExchange();
-	BitcoinExchange(const BitcoinExchange &other);
-	BitcoinExchange &operator=(const BitcoinExchange &other);
-	~BitcoinExchange();
+	public:
+		BitcoinExchange();
+		BitcoinExchange(const BitcoinExchange &other);
+		BitcoinExchange &operator=(const BitcoinExchange &other);
+		~BitcoinExchange();
 
-	void	convert(const std::string &file);
+		void	convert(const std::string &file);
 
-	class CantOpenFileException : std::exception
-	{
-		const char *what() const throw();
-	};
+		class CantOpenFileException : std::exception
+		{
+			const char *what() const throw();
+		};
 
-private:
-	std::map<std::string, float> _data;
+	private:
+		std::map<std::string, float> _data;
 };
 
 #endif

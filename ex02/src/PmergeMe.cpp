@@ -52,27 +52,55 @@ bool	PmergeMe::check_input(int ac, char **av) {
 	return (true);
 }
 
-void	PmergeMe::sortVector() {
+std::vector<int>	PmergeMe::recursiveVector(std::vector<int> numbers) {
+	if (numbers.size() <= 1)
+		return (numbers);
+
 	std::vector<std::pair<int, int>>	pairs;
 	bool	has_remainder = false;
 	int	remainder = -1;
-	int	vec_size = _vec_number.size();
+	int	vec_size = numbers.size();
 
 	//store a remainder if odd size of vector
-	if (_vec_number.size() % 2 != 0) {
-		remainder = _vec_number[vec_size];
-		_vec_number.pop_back();
+	if (numbers.size() % 2 != 0) {
+		remainder = numbers[vec_size];
+		has_remainder = true;
+		numbers.pop_back();
 		vec_size -= 1;
 	}
 
 	//create the pair (biggest number first)
 	for (int i = 0; i < vec_size; i += 2) {
-		int	a = _vec_number[i];
-		int	b = _vec_number[i + 1];
+		int	a = numbers[i];
+		int	b = numbers[i + 1];
 
 		if (a > b)
 			pairs.push_back(std::make_pair(a, b));
 		else
 			pairs.push_back(std::make_pair(b, a));
 	}
+
+	//create the main chain containing the "winner" (= biggest number)
+	std::vector<int>	main_chain;
+	std::vector<int>	pend_chain;
+
+	for (int i = 0; i < pairs.size(); ++i) {
+		main_chain.push_back(pairs[i].first);
+		pend_chain.push_back(pairs[i].second);
+
+		if (has_remainder && i == pairs.size())
+			pend_chain.push_back(remainder);
+	}
+
+	main_chain = recursiveVector(main_chain);
+
+	//INSERTION PHASE
+	//insert the loser of the very first winner at the beggining of the main chain
+	main_chain.insert(main_chain.begin(), pend_chain[0]);
+	
+	return (main_chain);
+}
+
+void	PmergeMe::sortVector() {
+	_vec_number = recursiveVector(_vec_number);
 }

@@ -24,14 +24,15 @@ class	PmergeMe {
 	//parsing
 
 	bool	check_input(int ac, char **av);
-	void	sortVector();
-
+	
 	//sorting functions go here
-
+	void	sortVector();
+	
 	private:
-
+	
 	std::vector<int>	_vec_number;
 	std::deque<int>		_deque_number;
+	std::vector<int>	recursiveVector(std::vector<int> numbers);
 };
 
 #endif

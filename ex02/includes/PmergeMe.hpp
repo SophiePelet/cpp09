@@ -9,9 +9,11 @@
 #include <climits>
 #include <cstdlib>
 #include <utility>
+#include <algorithm>
 
 #define	ERR_TYPE		"Error: unauthorized character in the input"
 #define	ERR_OVERFLOW	"Error: number is out of bounds"
+#define	ERR_DUP			"Error: the sequence contains duplicates"
 
 class	PmergeMe {
 	public:
@@ -21,11 +23,13 @@ class	PmergeMe {
 	PmergeMe &operator=(const PmergeMe &other);
 	~PmergeMe();
 
-	//parsing
+	//print the vector/deque
+	void	printVector(const std::string &message) const;
 
+	//parsing
 	bool	check_input(int ac, char **av);
 	
-	//sorting functions go here
+	//sorting functions
 	void	sortVector();
 	
 	private:

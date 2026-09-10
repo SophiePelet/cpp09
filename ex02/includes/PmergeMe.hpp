@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <utility>
 #include <algorithm>
+#include <ctime>
 
 #define	ERR_TYPE		"Error: unauthorized character in the input"
 #define	ERR_OVERFLOW	"Error: number is out of bounds"
@@ -24,6 +25,9 @@ class	PmergeMe {
 	PmergeMe &operator=(const PmergeMe &other);
 	~PmergeMe();
 
+	//getter for container size
+	size_t	getSize() const;
+
 	//print the vector/deque
 	void	printVector(const std::string &message) const;
 	void	printDeque(const std::string &message) const;
@@ -34,6 +38,11 @@ class	PmergeMe {
 	//sorting functions
 	void	sortVector();
 	void	sortDeque();
+
+	//time calculator
+
+	double	vectorTime();
+	double	dequeTime();
 	
 	private:
 	

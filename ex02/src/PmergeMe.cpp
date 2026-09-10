@@ -91,13 +91,31 @@ std::vector<int>	jacobsthalGenerator(size_t pend_size) {
 }
 
 /*
+	Size getter
+*/
+
+size_t	PmergeMe::getSize() const {
+	return (_vec_number.size());
+}
+
+/*
 	Vector sorting
 */
 
 void	PmergeMe::printVector(const std::string &message) const {
 	std::cout << message << " ";
-	for (size_t i = 0; i < _vec_number.size(); ++i)
+
+	size_t	limit = _vec_number.size();
+
+	if (limit > 20)
+		limit = 20;
+
+	for (size_t i = 0; i < limit; ++i)
 		std::cout << _vec_number[i] << " ";
+
+	if (limit == 20)
+		std::cout << "[...]";
+
 	std::cout << std::endl;
 }
 
@@ -182,14 +200,34 @@ void	PmergeMe::sortVector() {
 	_vec_number = recursiveVector(_vec_number);
 }
 
+double	PmergeMe::vectorTime() {
+	clock_t	start = std::clock();
+	sortVector();
+	clock_t	end = std::clock();
+
+	double time = (static_cast<double>(end) - static_cast<double>(start)) / CLOCKS_PER_SEC * 1000000;
+
+	return (time);
+}
+
 /*
 	Deque sorting
 */
 
 void	PmergeMe::printDeque(const std::string &message) const {
 	std::cout << message << " ";
-	for (size_t i = 0; i < _deque_number.size(); ++i)
+
+	size_t	limit = _deque_number.size();
+
+	if (limit > 20)
+		limit = 20;
+
+	for (size_t i = 0; i < limit; ++i)
 		std::cout << _deque_number[i] << " ";
+
+	if (limit == 20)
+		std::cout << "[...]";
+
 	std::cout << std::endl;
 }
 
@@ -272,4 +310,14 @@ std::deque<int>	PmergeMe::recursiveDeque(std::deque<int> numbers) {
 
 void	PmergeMe::sortDeque() {
 	_deque_number = recursiveDeque(_deque_number);
+}
+
+double	PmergeMe::dequeTime() {
+	clock_t	start = std::clock();
+	sortDeque();
+	clock_t	end = std::clock();
+
+	double time = (static_cast<double>(end) - static_cast<double>(start)) / CLOCKS_PER_SEC * 1000000;
+
+	return (time);
 }

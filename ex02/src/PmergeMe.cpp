@@ -21,6 +21,11 @@ bool	PmergeMe::check_input(int ac, char **av) {
 	std::string	input;
 	std::string	word;
 
+	if (ac < 2) {
+		std::cerr << ERR_ARG << std::endl;
+		return (false);
+	}
+
 	for (int i = 1; i < ac; ++i) {
 		input = av[i];
 	
@@ -63,16 +68,8 @@ bool	PmergeMe::check_input(int ac, char **av) {
 }
 
 /*
-	Vector sorting
+	Jacobsthal generator function (for both containers)
 */
-
-void	PmergeMe::printVector(const std::string &message) const {
-	std::cout << message << " ";
-	for (size_t i = 0; i < _vec_number.size(); ++i)
-		std::cout << _vec_number[i] << " ";
-	std::cout << std::endl;
-}
-
 std::vector<int>	jacobsthalGenerator(size_t pend_size) {
 	std::vector<int>	jacob_sequence;
 
@@ -89,8 +86,19 @@ std::vector<int>	jacobsthalGenerator(size_t pend_size) {
 		}
 		i++;
 	}
-	
+
 	return (jacob_sequence);
+}
+
+/*
+	Vector sorting
+*/
+
+void	PmergeMe::printVector(const std::string &message) const {
+	std::cout << message << " ";
+	for (size_t i = 0; i < _vec_number.size(); ++i)
+		std::cout << _vec_number[i] << " ";
+	std::cout << std::endl;
 }
 
 std::vector<int>	PmergeMe::recursiveVector(std::vector<int> numbers) {
@@ -172,4 +180,96 @@ std::vector<int>	PmergeMe::recursiveVector(std::vector<int> numbers) {
 
 void	PmergeMe::sortVector() {
 	_vec_number = recursiveVector(_vec_number);
+}
+
+/*
+	Deque sorting
+*/
+
+void	PmergeMe::printDeque(const std::string &message) const {
+	std::cout << message << " ";
+	for (size_t i = 0; i < _deque_number.size(); ++i)
+		std::cout << _deque_number[i] << " ";
+	std::cout << std::endl;
+}
+
+std::deque<int>	PmergeMe::recursiveDeque(std::deque<int> numbers) {
+	if (numbers.size() <= 1)
+		return (numbers);
+
+	std::deque<std::pair<int, int> >	pairs;
+	bool	has_remainder = false;
+	int		remainder = -1;
+	size_t	deque_size = numbers.size();
+
+	//store a remainder if odd size of vector
+	if (numbers.size() % 2 != 0) {
+		remainder = numbers[deque_size - 1];
+		has_remainder = true;
+		numbers.pop_back();
+		deque_size -= 1;
+	}
+
+	//create the pair (biggest number first)
+	for (size_t i = 0; i < deque_size; i += 2) {
+		int	a = numbers[i];
+		int	b = numbers[i + 1];
+
+		if (a > b)
+			pairs.push_back(std::make_pair(a, b));
+		else
+			pairs.push_back(std::make_pair(b, a));
+	}
+
+	//create the main chain containing the "winner" (= biggest number)
+	std::deque<int>	main_chain;
+
+	for (size_t i = 0; i < pairs.size(); ++i)
+		main_chain.push_back(pairs[i].first);
+		
+	//recursive logic for the use of the pairs
+	main_chain = recursiveDeque(main_chain);
+	
+	std::deque<int>	pend_chain;
+	
+	for (size_t i = 0; i < main_chain.size(); ++i) {
+		//find sorted winner in original pairs to get its specific loser
+		for (size_t j = 0; j < pairs.size(); ++j) {
+			if (main_chain[i] == pairs[j].first) {
+				pend_chain.push_back(pairs[j].second);
+				break;
+			}
+		}
+	}
+	
+	if (has_remainder)
+		pend_chain.push_back(remainder);
+	//INSERTION PHASE
+	//insert the loser of the very first winner at the beggining of the main chain
+	main_chain.insert(main_chain.begin(), pend_chain[0]);
+
+	//generate Jacobsthal sequence and use it to find where to insert the numbers of the pending chain
+	std::vector<int>	jacobsthal_sequence = jacobsthalGenerator(pend_chain.size());
+
+	size_t	previous_jacob = 1;
+	for (size_t i = 3; i < jacobsthal_sequence.size(); ++i) {
+		size_t	current_jacob = jacobsthal_sequence[i];
+
+		if (current_jacob > pend_chain.size())
+			current_jacob = pend_chain.size();
+
+		for (size_t j = current_jacob - 1; j >= previous_jacob; --j) {
+			int	target = pend_chain[j];
+
+			std::deque<int>::iterator	it = std::upper_bound(main_chain.begin(), main_chain.end(), target);
+			main_chain.insert(it, target);
+		}
+		previous_jacob = current_jacob;
+	}
+	
+	return (main_chain);
+}
+
+void	PmergeMe::sortDeque() {
+	_deque_number = recursiveDeque(_deque_number);
 }
